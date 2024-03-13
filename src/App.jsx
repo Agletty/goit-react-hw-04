@@ -1,26 +1,47 @@
-import Profile from "./components/Profile/Profile";
-import FriendList from "./components/FriendList/FriendList";
-import TransactionHistory from "./components/TransactionHistory/TransactionHistory";
+import { useState, useEffect } from "react";
 
-import userData from "../src/components/Profile/userData.json";
-import friends from "../src/components/FriendList/friends.json";
-import transactions from "../src/components/TransactionHistory/transactions.json";
-// import "./App.css";
+import ImageGallery from "./components/ImageGallery/ImageGallery";
+import Loader from "./components/Loader/Loader";
+import ErrorMessage from "./components/ErrorMessage/ErrorMessage";
+import fetchPhotos from "./components/servises/api";
 
-function App() {
+const App = () => {
+  const [photos, setPhotos] = useState(null);
+  const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const data = await fetchPhotos();
+        console.log(data);
+
+        setPhotos(data.photos);
+        console.log(data.photos);
+
+        setIsLoading(true);
+      } catch (error) {
+        setIsError(true);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
   return (
-    <>
-      <Profile
-        name={userData.username}
-        tag={userData.tag}
-        location={userData.location}
-        image={userData.avatar}
-        stats={userData.stats}
-      />
-      <FriendList friends={friends} />
-      <TransactionHistory items={transactions} />
-    </>
+    <div>
+      {isError && <ErrorMessage />}
+
+      {!photos || photos.length === 0 ? (
+        <p>No images available</p>
+      ) : (
+        <ImageGallery photos={photos} />
+      )}
+      {isLoading && <Loader />}
+    </div>
   );
-}
+};
 
 export default App;
