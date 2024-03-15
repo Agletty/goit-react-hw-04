@@ -1,13 +1,13 @@
-import ImageCard from "./ImageGallery";
+import ImageCard from "../ImageCard/ImageCard";
 
-const ImageGallery = ({ photos }) => {
-  console.log("Received image data:", photos);
+const ImageGallery = ({ images }) => {
+  // console.log("Received image data:", photos);
   return (
     <ul className="image-gallery">
-      {photos !== null &&
-        photos.map((photo) => (
-          <li key={photo.id}>
-            <ImageCard photo={photo} />
+      {images !== null &&
+        images.map((image) => (
+          <li key={image.id}>
+            <ImageCard image={image} />
           </li>
         ))}
     </ul>
