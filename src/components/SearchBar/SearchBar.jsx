@@ -16,7 +16,7 @@ const SearchBar = ({ onSubmit }) => {
       toast.error("Please enter a search term");
       return;
     }
-    onSubmit(query); // Pass the search term to the parent component
+    onSubmit(query);
   };
 
   return (

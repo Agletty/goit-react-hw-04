@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Modal from "react-modal";
 
 import ImageGallery from "./components/ImageGallery/ImageGallery";
 import Loader from "./components/Loader/Loader";
@@ -8,13 +9,15 @@ import SearchBar from "./components/SearchBar/SearchBar";
 import LoadMoreBtn from "./components/LoadMoreBtn/LoadMoreBtn";
 import ImageModal from "./components/ImageModal/ImageModal";
 
+Modal.setAppElement("#root");
+
 const App = () => {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
-  const [images, setImages] = useState(null);
+  const [images, setImages] = useState([]);
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [total_pages, setTotalPages] = useState(null);
+  const [totalPages, setTotalPages] = useState(null);
   const [showBtn, setShowBtn] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -24,13 +27,22 @@ const App = () => {
       try {
         setIsLoading(true);
 
-        const data = await fetchPhotos(query, page);
-        // console.log("API Response:", data);
-        setImages(data);
+        let data;
+        if (query) {
+          data = await fetchPhotos(query, page);
+
+          setImages((prevImages) =>
+            page === 1 ? data.results : [...prevImages, ...data.results]
+          );
+        } else {
+          data = await fetchPhotos("", page);
+
+          setImages((prevImages) => [...prevImages, ...data]);
+        }
+
+        console.log("API Response:", data);
 
         setTotalPages(data.total_pages);
-
-        setShowBtn(total_pages && total_pages !== page);
       } catch (error) {
         setIsError(true);
       } finally {
@@ -39,7 +51,11 @@ const App = () => {
     };
 
     fetchData();
-  }, [query, page, total_pages]);
+  }, [query, page]);
+
+  useEffect(() => {
+    setShowBtn(totalPages !== null && totalPages !== page);
+  }, [totalPages, page]);
 
   const handleSearchSubmit = (newQuery) => {
     setQuery(newQuery);
@@ -68,12 +84,13 @@ const App = () => {
       {!images || images.length === 0 ? (
         <p>No images available</p>
       ) : (
-        <ImageGallery images={images} onImageClick={openModal} />
+        <ImageGallery images={images} openModal={openModal} />
       )}
 
       {isLoading && <Loader />}
 
       {showBtn && <LoadMoreBtn onLoadMore={handleNextPage} />}
+
       <ImageModal
         isOpen={modalIsOpen}
         onRequestClose={closeModal}

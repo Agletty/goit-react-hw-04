@@ -1,4 +1,5 @@
 import Modal from "react-modal";
+// import css from "./src/components/ImageModal/ImageModal.css";
 
 const ImageModal = ({ isOpen, onRequestClose, image }) => {
   if (!image) {
