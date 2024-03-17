@@ -27,22 +27,19 @@ const App = () => {
       try {
         setIsLoading(true);
 
-        let data;
-        if (query) {
-          data = await fetchPhotos(query, page);
+        let data = await fetchPhotos(query, page);
 
+        if (query) {
           setImages((prevImages) =>
             page === 1 ? data.results : [...prevImages, ...data.results]
           );
         } else {
-          data = await fetchPhotos("", page);
-
           setImages((prevImages) => [...prevImages, ...data]);
         }
 
-        console.log("API Response:", data);
-
         setTotalPages(data.total_pages);
+
+        setShowBtn(data.total_pages !== null && data.total_pages !== page);
       } catch (error) {
         setIsError(true);
       } finally {
@@ -52,10 +49,6 @@ const App = () => {
 
     fetchData();
   }, [query, page]);
-
-  useEffect(() => {
-    setShowBtn(totalPages !== null && totalPages !== page);
-  }, [totalPages, page]);
 
   const handleSearchSubmit = (newQuery) => {
     setQuery(newQuery);
@@ -89,7 +82,12 @@ const App = () => {
 
       {isLoading && <Loader />}
 
-      {showBtn && <LoadMoreBtn onLoadMore={handleNextPage} />}
+      {showBtn && (
+        <LoadMoreBtn
+          onLoadMore={handleNextPage}
+          disabled={page === totalPages}
+        />
+      )}
 
       <ImageModal
         isOpen={modalIsOpen}

@@ -1,14 +1,10 @@
 import Modal from "react-modal";
-// import css from "./src/components/ImageModal/ImageModal.css";
 
 const ImageModal = ({ isOpen, onRequestClose, image }) => {
-  if (!image) {
-    return null;
-  }
-
   return (
     <Modal isOpen={isOpen} onRequestClose={onRequestClose}>
-      <img src={image.urls.regular} alt={image.alt_description} />
+      {image && <img src={image.urls.regular} alt={image.alt_description} />}
+      {!image && <p>No image provided</p>}
       <button onClick={onRequestClose}>Close Modal</button>
     </Modal>
   );
